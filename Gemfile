@@ -1,0 +1,5 @@
+gem 'cucumber'
+gem 'selenium-webdriver'
+gem 'webdrivers'
+gem 'rspec'
+gem 'rspec-wait'
