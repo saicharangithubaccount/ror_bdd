@@ -1,0 +1,27 @@
+name: Selenium Ruby in GitHub Actions
+
+on:
+  push:
+    branches:
+      - main  # Change this to the default branch name if needed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 3.2.2  # Change to your desired Ruby version
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Run Selenium tests
+        env:
+          SELENIUM_BROWSER: chrome  # Change to 'firefox', 'safari', or others if needed
+        run: bundle exec cucumber --format summary --format html --out report.html
