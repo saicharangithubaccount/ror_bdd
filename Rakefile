@@ -27,14 +27,13 @@ end
 
 task :firefox do
     # sh "parallel_cucumber features/login.feature"
-    sh "bundle exec cucumber features/login.feature BROWSER=firefox"
+    sh "bundle exec cucumber features/login.feature BROWSER=firefox --format summary --format html --out firefox.html --format json --out cucumber.json"
 end
 
 task :chrome do
     # sh "parallel_cucumber features/login.feature"
-    sh "bundle exec cucumber features/login.feature BROWSER=chrome"
+    sh "bundle exec cucumber features/login.feature BROWSER=chrome --format summary --format html --out chrome.html --format json --out cucumber.json"
 end
-
 
 task :parallel do
   Parallel.each([:chrome, :firefox], in_threads: 2) do |task|
