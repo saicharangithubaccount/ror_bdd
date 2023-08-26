@@ -5,8 +5,8 @@ require_relative '../page_objects/login_page'
   Given("the user navigates to login") do
      # options = Selenium::WebDriver::Chrome::Options.new
      options = Selenium::WebDriver::Firefox::Options.new
-     @driver = Selenium::WebDriver.for :remote, url: 'http://localhost:4444/wd/hub',options: options
-    #  @driver = Selenium::WebDriver.for :firefox
+     # @driver = Selenium::WebDriver.for :remote, url: 'http://localhost:4444/wd/hub',options: options
+     @driver = Selenium::WebDriver.for :firefox
      @driver.manage.window.maximize
      @login_page = LoginPage.new(@driver)
   end
