@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Test Report</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            width: 50%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 0;
+        }
+
+        th {
+            background-color: #8cb4e3;
+            color: black;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 80%;
+            max-width: 900px;
+            margin: 100px auto;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+            background-color: white;
+        }
+
+        #subtable-container > table {
+            max-width: 900px;
+            overflow-y: auto;
+            width: 100%;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h2>Test Report</h2>
+<div id="table-container"></div>
+
+<div class="modal">
+    <div class="modal-content">
+        <!--    <span class="close">X</span>-->
+        <span class="close"><i class="fas fa-times"></i></span>
+        <div id="subtable-container"></div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        let index = 0
+        // let cucumber_json = "cucumber_fail.json"
+        // let cucumber_json = "cucumber.json"
+        $.each(jsonData, function (index, value) {
+            var mainTable = '<table border="1"><tr><th>Sl No</th><th>Contract Name</th><th>Total Run</th><th>Pass</th><th>Fail</th></tr>';
+            // var numColumns = 5;
+            let pass_count = 0;
+            let fail_count = 0;
+            // let index = Object.keys(data).indexOf(key);
+            mainTable += '<tr class="main-row">';
+            mainTable += '<td>' + (index + 1) + '</td>';
+            mainTable += '<td>' + value.name + '</td>';
+            mainTable += '<td>' + value.elements.length + '</td>';
+
+            let element_data = value.elements
+            $.each(element_data, function (key, value) {
+                let step_data = value.steps
+                let step_pass_count = 0;
+                let step_fail_count = 0;
+                $.each(step_data, function (key, value) {
+                    let result = value.result.status
+                    if (result === 'passed') {
+                        step_pass_count = step_pass_count + 1;
+                    } else {
+                        step_fail_count = step_fail_count + 1;
+                    }
+                })
+                if (step_fail_count === 0 && step_pass_count > 0) {
+                    pass_count = pass_count + 1
+                }
+                if (step_fail_count > 0) {
+                    fail_count = fail_count + 1
+                }
+            });
+            mainTable += '<td>' + pass_count + '</td>';
+            mainTable += '<td>' + fail_count + '</td>';
+            mainTable += '</tr>';
+
+            index = index + 1;
+
+            mainTable += '</table>';
+            $('#table-container').html(mainTable);
+
+            // Click event handler for main table rows
+            $('.main-row').click(function () {
+                let subRow = $(this).next('.sub-row');
+                if (subRow.is(':visible')) {
+                    subRow.hide();
+                } else {
+                    var subTable = '<table border="1"><tr><th>Sl No</th><th>Test Case ID</th><th>Test Description</th><th>Status</th><th>Failure root cause, if any</th></tr>';
+                    var rowData = value.elements;
+                    let index = 0;
+                    $.each(rowData, function (key, value) {
+                        let pass_count = 0;
+                        let fail_count = 0;
+                        subTable += '<tr>';
+                        subTable += '<td>' + (index + 1) + '</td>';
+                        subTable += '<td>' + value.name + '</td>';
+                        subTable += '<td>' + value.description + '</td>';
+                        // subTable += '<td>' + value.description + '</td>';
+                        // subTable += '<td>' + value.description + '</td>';
+                        // subTable += '</tr>';
+                        let steps_data = value.steps
+                        let scenario_result = ""
+                        let error_message = ""
+                        $.each(steps_data, function (key, value) {
+                            let step_data = value.steps
+                            let step_pass_count = 0;
+                            let step_fail_count = 0;
+                            // $.each(step_data, function (key, value) {
+                            let result = value.result.status
+                            if (result === 'passed') {
+                                step_pass_count = step_pass_count + 1;
+                            } else {
+                                step_fail_count = step_fail_count + 1;
+                            }
+                            // })
+                            if (step_fail_count === 0 && step_pass_count > 0) {
+                                scenario_result = "Passed"
+                            }
+                            if (step_fail_count > 0) {
+                                scenario_result = "Failed"
+                                error_message = value.result.error_message
+                            }
+                        });
+                        subTable += '<td>' + scenario_result + '</td>';
+                        if (scenario_result === "Failed") {
+                            subTable += '<td>' + error_message + '</td>';
+                        } else {
+                            subTable += '<td> N/A </td>';
+                        }
+                        subTable += '</tr>';
+                        index = index + 1;
+                    });
+
+                    subTable += '</table>';
+                    // $(this).after('<tr class="sub-row"><td>' + subTable + '</td></tr>');
+                    // $(this).after('<tr class="sub-row">' + subTable + '</tr>');
+                    $('#subtable-container').html(subTable);
+                    $('.modal').css('display', 'block');
+                }//colspan="' + numColumns + '"
+            });
+            // $('.fas fa-times').click(function () {
+            $('.close').click(function () {
+                $('.modal').css('display', 'none');
+                // $('.open-icon').html('<i class="fas fa-times"></i>');
+            });
+            // Close modal when clicking anywhere outside modal content
+            $(window).click(function (event) {
+                if (event.target === $('.modal')[0]) {
+                    $('.modal').css('display', 'none');
+                }
+            });
+            // Hide subtable rows initially
+            $('.sub-row').hide();
+        });
+    });
+</script>
+</body>
+</html>
